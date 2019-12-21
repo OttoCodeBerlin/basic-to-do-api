@@ -1,64 +1,72 @@
-require("dotenv").config();
+require('dotenv').config()
 
-const cookieParser = require("cookie-parser");
-const express = require("express");
-const mongoose = require("mongoose");
-const logger = require("morgan");
-const path = require("path");
+const cookieParser = require('cookie-parser')
+const express = require('express')
+const mongoose = require('mongoose')
+const logger = require('morgan')
+const path = require('path')
+const cors = require('cors')
 
-const session = require("express-session");
-const passport = require("passport");
+const session = require('express-session')
+const passport = require('passport')
 
-require("./config/passport");
+require('./config/passport')
 
-const dbName = "to-do-list";
+const dbName = 'to-do-list'
 mongoose
   .connect(`mongodb://localhost/${dbName}`, {
     useNewUrlParser: true,
     useFindAndModify: false
   })
   .then(() => {
-    console.log(`Connected to Mongo: ${dbName}!`);
+    console.log(`Connected to Mongo: ${dbName}!`)
   })
   .catch(err => {
-    console.error("Error connecting to mongo", err);
-  });
+    console.error('Error connecting to mongo', err)
+  })
 
-const app = express();
+const app = express()
 
 // Middleware Setup
-app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(logger('dev'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
 
 // Express View engine setup
 
 app.use(
-  require("node-sass-middleware")({
-    src: path.join(__dirname, "public"),
-    dest: path.join(__dirname, "public"),
+  require('node-sass-middleware')({
+    src: path.join(__dirname, 'public'),
+    dest: path.join(__dirname, 'public'),
     sourceMap: true
   })
-);
+)
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, 'public')))
 
 app.use(
   session({
-    secret: "keyboard cat",
+    secret: 'keyboard cat',
     resave: true,
     saveUninitialized: true
   })
-);
+)
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.initialize())
+app.use(passport.session())
 
-const taskRoutes = require("./routes/tasks");
-app.use("/api", taskRoutes);
+app.use(
+  cors({
+    credentials: true,
+    origin: ['http://localhost:3000']
+  })
+)
 
-const authroutes = require("./routes/authroutes");
-app.use("/api", authroutes);
+const taskRoutes = require('./routes/tasks')
+app.use('/api', taskRoutes)
 
-module.exports = app;
+const authroutes = require('./routes/authroutes')
+app.use('/api', authroutes)
+
+module.exports = app

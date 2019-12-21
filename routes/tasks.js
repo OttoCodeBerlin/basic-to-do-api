@@ -2,9 +2,9 @@ const express = require('express')
 const router = express.Router()
 const Task = require('../models/task')
 
-router.get('/', function(req, res, next) {
-  res.send('API is working properly')
-})
+// router.get('/', function(req, res, next) {
+//   res.send('API is working properly')
+// })
 
 router.get('/tasks', async (req, res, next) => {
   try {
