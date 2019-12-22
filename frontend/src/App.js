@@ -3,8 +3,17 @@ import axios from 'axios'
 import TodoList from './components/TodoList.js'
 
 export default class App extends Component {
-  constructor() {
-    super()
+  constructor(props) {
+    super(props)
+    this.handleChangeSignup = this.handleChangeSignup.bind(this)
+    this.handleChangeLogin = this.handleChangeLogin.bind(this)
+    this.handleChangeTodo = this.handleChangeTodo.bind(this)
+    this.handleSubmitTodo = this.handleSubmitTodo.bind(this)
+    this.handleSubmitSignup = this.handleSubmitSignup.bind(this)
+    this.handleSubmitLogin = this.handleSubmitLogin.bind(this)
+    this.handleLogout = this.handleLogout.bind(this)
+    this.handleCheck = this.handleCheck.bind(this)
+
     this.state = {
       username: '',
       password: '',
@@ -16,12 +25,6 @@ export default class App extends Component {
       todos: [],
       message: null
     }
-
-    this.handleChange = this.handleChange.bind(this)
-    // this.handleChangeUser = this.handleChangeUser.bind(this)
-    this.handleSubmitTodo = this.handleSubmitTodo.bind(this)
-    this.handleSubmitSignup = this.handleSubmitSignup.bind(this)
-    this.handleSubmitLogin = this.handleSubmitLogin.bind(this)
   }
 
   componentDidMount() {
@@ -41,16 +44,16 @@ export default class App extends Component {
       .catch(err => console.log(err))
   }
 
-  // handleChangeTodo = e => {
-  //   console.log(e.target)
-  //   this.setState({
-  //     todo: {
-  //       title: e.target.title,
-  //       description: e.target.description
-  //       //owner: e.target.owner
-  //     }
-  //   })
-  // }
+  handleChangeTodo = e => {
+    console.log(this.state)
+    this.setState({
+      todo: {
+        // title: e.target.title,
+        // description: e.target.description
+        [e.target.name]: e.target.value
+      }
+    })
+  }
 
   // handleChangeUser = e => {
   //   this.setState({
@@ -59,19 +62,38 @@ export default class App extends Component {
   //   })
   // }
 
-  handleChange = e => {
+  handleChangeLogin = e => {
+    console.log(e.target)
     this.setState({
       [e.target.name]: e.target.value
     })
   }
 
+  handleChangeSignup = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    })
+  }
+
+  // handleChangeSignup(e) {
+  //   this.setState({ name: e.target.value })
+  // }
+
+  // handleChangeLogin(e) {
+  //   this.setState({ name: e.target.value })
+  // }
+
   handleSubmitTodo = e => {
     e.preventDefault()
     console.log(this.state)
     axios
-      .post('http://localhost:5000/api/tasks/create', this.state.todo)
+      .post('http://localhost:5000/api/tasks/create', {
+        title: this.state.todo.title,
+        description: this.state.todo.description,
+        // owner
+      })
       .then(response => {
-        console.log(response)
+        console.log(response.data.message)
       })
       .catch(error => {
         console.log(error)
@@ -117,7 +139,7 @@ export default class App extends Component {
         password: this.state.password
       })
       .then(response => {
-        console.log(response)
+        console.log(response.data)
         if (response.status === 200) {
           console.log('Ist Status 200')
           // this.props.updateUser({
@@ -129,13 +151,36 @@ export default class App extends Component {
       .catch(error => {
         console.log(error)
       })
-    // this.setState({
-    //   message: response.data.message
-    // })
-    // this.setState({
-    //   username: '',
-    //   password: ''
-    // })
+  }
+
+  handleLogout = e => {
+    e.preventDefault()
+    axios
+      .delete('http://localhost:5000/api/logout', {})
+      .then(response => {
+        console.log(response)
+        if (response.status === 200) {
+          console.log('Ist Status 200')
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
+
+  handleCheck = e => {
+    e.preventDefault()
+    axios
+      .get('http://localhost:5000/api/loggedin')
+      .then(response => {
+        console.log(response)
+        if (response.status === 200) {
+          console.log('Ist Status 200')
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
   }
 
   render() {
@@ -147,17 +192,23 @@ export default class App extends Component {
         <form onSubmit={this.handleSubmitSignup}>
           <label>
             Username:
-            <input type="text" id="username" name="username" value={this.state.username} onChange={this.handleChange} />
+            <input
+              type="text"
+              id="username1"
+              name="username"
+              value={this.state.username}
+              onChange={this.handleChangeSignup}
+            />
           </label>
           <br />
           <label>
             Password:
             <input
               type="password"
-              id="password"
+              id="password1"
               name="password"
               value={this.state.password}
-              onChange={this.handleChange}
+              onChange={this.handleChangeSignup}
             />
           </label>
           <br />
@@ -167,33 +218,50 @@ export default class App extends Component {
         <form onSubmit={this.handleSubmitLogin}>
           <label>
             Username:
-            <input type="text" id="username" name="username" value={this.state.username} onChange={this.handleChange} />
+            <input
+              type="text"
+              id="username2"
+              name="username"
+              value={this.state.username}
+              onChange={this.handleChangeLogin}
+            />
           </label>
           <br />
           <label>
             Password:
             <input
               type="password"
-              id="password"
+              id="password2"
               name="password"
               value={this.state.password}
-              onChange={this.handleChange}
+              onChange={this.handleChangeLogin}
             />
           </label>
           <br />
           <input type="submit" value="Login" />
         </form>
-
         <br />
+        <input onClick={this.handleLogout} type="submit" value="Logout" />
+        <br />
+        <input onClick={this.handleCheck} type="submit" value="Check if Logged In" />
+        <br />
+        <br />
+
         <form onSubmit={this.handleSubmitTodo}>
           <label>
             Title:
-            <input type="text" name="title" value={this.state.title} onChange={this.handleChange} />
+            <input type="text" id="title" name="title" value={this.state.todo.title} onChange={this.handleChangeTodo} />
           </label>
           <br />
           <label>
             Description:
-            <input type="text" name="description" value={this.state.description} onChange={this.handleChange} />
+            <input
+              type="text"
+              id="description"
+              name="description"
+              value={this.state.todo.description}
+              onChange={this.handleChangeTodo}
+            />
           </label>
           <br />
 

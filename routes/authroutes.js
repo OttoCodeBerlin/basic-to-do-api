@@ -58,7 +58,7 @@ authRoutes.post('/signup', (req, res, next) => {
 })
 
 authRoutes.post('/login', (req, res, next) => {
-  console.log(req)
+  console.log(req.body)
   passport.authenticate('local', (err, theUser, failureDetails) => {
     if (err) {
       res.json({ message: 'Something went wrong authenticating user' })
