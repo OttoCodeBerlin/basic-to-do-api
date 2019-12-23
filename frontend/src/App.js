@@ -31,6 +31,8 @@ export default class App extends Component {
     this.handleSubmitLogin = this.handleSubmitLogin.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
     this.handleCheck = this.handleCheck.bind(this)
+
+    axios.defaults.withCredentials = true
   }
 
   componentDidMount() {
@@ -57,7 +59,6 @@ export default class App extends Component {
   }
 
   handleChangeLogin(e) {
-    console.log(this.state)
     this.setState({
       [e.target.name]: e.target.value
     })
@@ -69,23 +70,27 @@ export default class App extends Component {
     })
   }
 
-  // handleChangeSignup(e) {
-  //   this.setState({ name: e.target.value })
-  // }
-
-  // handleChangeLogin(e) {
-  //   this.setState({ name: e.target.value })
-  // }
-
-  handleSubmitTodo = e => {
+  handleSubmitTodo(e) {
     e.preventDefault()
-    console.log(this.state)
+    // this.setState({
+    //   todo: {
+    //     title,
+    //     description,
+    //     userId
+    //   }
+    // })
+    // const todo= {
+    //   title,
+    //   description,
+    //   this.state.userId
+    // }
     const config = {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json'
       }
     }
+
     axios
       .post(
         'http://localhost:5000/api/tasks/create',
@@ -97,25 +102,35 @@ export default class App extends Component {
         config
       )
       .then(response => {
-        const newTodos = response.data.map(todo => {
-          return {
-            todo: todo
-          }
-        })
-        const newState = Object.assign({}, this.state, {
-          todos: newTodos
-        })
-        this.setState(newState)
+        console.log(response)
+        // const newTodos = response.data.map(todo => {
+        //   return {
+        //     n: todo
+        //   }
+        // })
+        // const newState = Object.assign({}, this.state, {
+        //   todos: newTodos
+        // })
+        // this.setState(newState)
       })
       .catch(error => {
         console.log(error)
       })
 
     this.setState({
+      todos: [
+        ...this.state.todos,
+        {
+          todo: {
+            title: this.state.title,
+            description: this.state.description,
+            owner: this.state.userId
+          }
+        }
+      ],
       title: '',
       description: '',
-      owner: '',
-      todos: [...this.state.todos, this.state.title, this.state.description, this.state.owner]
+      owner: ''
     })
   }
 
