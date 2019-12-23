@@ -11,11 +11,6 @@ export default class App extends Component {
       password: '',
       loggedIn: false,
       userId: '',
-      // todo: {
-      //   title: '',
-      //   description: '',
-      //   owner: ''
-      // },
       title: '',
       description: '',
       owner: '',
@@ -31,6 +26,8 @@ export default class App extends Component {
     this.handleSubmitLogin = this.handleSubmitLogin.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
     this.handleCheck = this.handleCheck.bind(this)
+    this.handleDelete = this.handleDelete.bind(this)
+    this.handleEdit = this.handleEdit.bind(this)
 
     axios.defaults.withCredentials = true
   }
@@ -72,25 +69,12 @@ export default class App extends Component {
 
   handleSubmitTodo(e) {
     e.preventDefault()
-    // this.setState({
-    //   todo: {
-    //     title,
-    //     description,
-    //     userId
-    //   }
-    // })
-    // const todo= {
-    //   title,
-    //   description,
-    //   this.state.userId
-    // }
     const config = {
       withCredentials: true,
       headers: {
         'Content-Type': 'application/json'
       }
     }
-
     axios
       .post(
         'http://localhost:5000/api/tasks/create',
@@ -103,15 +87,6 @@ export default class App extends Component {
       )
       .then(response => {
         console.log(response)
-        // const newTodos = response.data.map(todo => {
-        //   return {
-        //     n: todo
-        //   }
-        // })
-        // const newState = Object.assign({}, this.state, {
-        //   todos: newTodos
-        // })
-        // this.setState(newState)
       })
       .catch(error => {
         console.log(error)
@@ -147,13 +122,6 @@ export default class App extends Component {
       .catch(error => {
         console.log(error)
       })
-    // this.setState({
-    //   message: response.data.message
-    // })
-    // this.setState({
-    //   username: '',
-    //   password: ''
-    // })
   }
 
   handleSubmitLogin = e => {
@@ -167,10 +135,6 @@ export default class App extends Component {
         console.log(response.data)
         if (response.status === 200) {
           console.log('Ist Status 200')
-          // this.props.updateUser({
-          //   loggedIn: true,
-          //   username: response.data.usernane
-          // })
           this.setState({
             username: response.data.username,
             password: response.data.password,
@@ -212,6 +176,36 @@ export default class App extends Component {
       .catch(error => {
         console.log(error)
       })
+  }
+
+  handleDelete(id) {
+    axios
+      .post('http://localhost:5000/api/tasks/delete/' + id)
+      .then(response => {
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    const newTodos = this.state.todos.filter(todo => todo.todo._id !== id)
+    this.setState({
+      todos: newTodos
+    })
+  }
+
+  handleEdit(id) {
+    axios
+      .post('http://localhost:5000/api/tasks/delete/' + id)
+      .then(response => {
+        console.log(response.data)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    const newTodos = this.state.todos.filter(todo => todo.todo._id !== id)
+    this.setState({
+      todos: newTodos
+    })
   }
 
   render() {
@@ -288,7 +282,7 @@ export default class App extends Component {
         </form>
         {/* {message && <p>{message}</p>} */}
         <p>Username: {this.state.username}</p>
-        <TodoList todos={this.state.todos} />
+        <TodoList todos={this.state.todos} handleDelete={this.handleDelete} />
       </div>
     )
   }
