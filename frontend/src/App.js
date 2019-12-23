@@ -5,6 +5,24 @@ import TodoList from './components/TodoList.js'
 export default class App extends Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      username: '',
+      password: '',
+      loggedIn: false,
+      userId: '',
+      // todo: {
+      //   title: '',
+      //   description: '',
+      //   owner: ''
+      // },
+      title: '',
+      description: '',
+      owner: '',
+      todos: [],
+      message: null
+    }
+
     this.handleChangeSignup = this.handleChangeSignup.bind(this)
     this.handleChangeLogin = this.handleChangeLogin.bind(this)
     this.handleChangeTodo = this.handleChangeTodo.bind(this)
@@ -13,18 +31,6 @@ export default class App extends Component {
     this.handleSubmitLogin = this.handleSubmitLogin.bind(this)
     this.handleLogout = this.handleLogout.bind(this)
     this.handleCheck = this.handleCheck.bind(this)
-
-    this.state = {
-      username: '',
-      password: '',
-      todo: {
-        title: '',
-        description: '',
-        owner: ''
-      },
-      todos: [],
-      message: null
-    }
   }
 
   componentDidMount() {
@@ -44,32 +50,20 @@ export default class App extends Component {
       .catch(err => console.log(err))
   }
 
-  handleChangeTodo = e => {
-    console.log(this.state)
-    this.setState({
-      todo: {
-        // title: e.target.title,
-        // description: e.target.description
-        [e.target.name]: e.target.value
-      }
-    })
-  }
-
-  // handleChangeUser = e => {
-  //   this.setState({
-  //     username: e.target.username,
-  //     password: e.target.password
-  //   })
-  // }
-
-  handleChangeLogin = e => {
-    console.log(e.target)
+  handleChangeTodo(e) {
     this.setState({
       [e.target.name]: e.target.value
     })
   }
 
-  handleChangeSignup = e => {
+  handleChangeLogin(e) {
+    console.log(this.state)
+    this.setState({
+      [e.target.name]: e.target.value
+    })
+  }
+
+  handleChangeSignup(e) {
     this.setState({
       [e.target.name]: e.target.value
     })
@@ -86,26 +80,42 @@ export default class App extends Component {
   handleSubmitTodo = e => {
     e.preventDefault()
     console.log(this.state)
+    const config = {
+      withCredentials: true,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
     axios
-      .post('http://localhost:5000/api/tasks/create', {
-        title: this.state.todo.title,
-        description: this.state.todo.description,
-        // owner
-      })
+      .post(
+        'http://localhost:5000/api/tasks/create',
+        {
+          title: this.state.title,
+          description: this.state.description,
+          owner: this.state.userId
+        },
+        config
+      )
       .then(response => {
-        console.log(response.data.message)
+        const newTodos = response.data.map(todo => {
+          return {
+            todo: todo
+          }
+        })
+        const newState = Object.assign({}, this.state, {
+          todos: newTodos
+        })
+        this.setState(newState)
       })
       .catch(error => {
         console.log(error)
       })
 
     this.setState({
-      todo: {
-        title: '',
-        description: '',
-        owner: ''
-      },
-      todos: [...this.state.todos, this.state.todo]
+      title: '',
+      description: '',
+      owner: '',
+      todos: [...this.state.todos, this.state.title, this.state.description, this.state.owner]
     })
   }
 
@@ -146,6 +156,12 @@ export default class App extends Component {
           //   loggedIn: true,
           //   username: response.data.usernane
           // })
+          this.setState({
+            username: response.data.username,
+            password: response.data.password,
+            loggedIn: true,
+            userId: response.data._id
+          })
         }
       })
       .catch(error => {
@@ -229,13 +245,7 @@ export default class App extends Component {
           <br />
           <label>
             Password:
-            <input
-              type="password"
-              id="password2"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleChangeLogin}
-            />
+            <input type="password" name="password" value={this.state.password} onChange={this.handleChangeLogin} />
           </label>
           <br />
           <input type="submit" value="Login" />
@@ -250,18 +260,12 @@ export default class App extends Component {
         <form onSubmit={this.handleSubmitTodo}>
           <label>
             Title:
-            <input type="text" id="title" name="title" value={this.state.todo.title} onChange={this.handleChangeTodo} />
+            <input type="text" name="title" value={this.state.title} onChange={this.handleChangeTodo} />
           </label>
           <br />
           <label>
             Description:
-            <input
-              type="text"
-              id="description"
-              name="description"
-              value={this.state.todo.description}
-              onChange={this.handleChangeTodo}
-            />
+            <input type="text" name="description" value={this.state.description} onChange={this.handleChangeTodo} />
           </label>
           <br />
 

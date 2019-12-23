@@ -2,10 +2,6 @@ const express = require('express')
 const router = express.Router()
 const Task = require('../models/task')
 
-// router.get('/', function(req, res, next) {
-//   res.send('API is working properly')
-// })
-
 router.get('/tasks', async (req, res, next) => {
   try {
     const tasks = await Task.find().sort({ createdAt: -1 })
@@ -17,17 +13,18 @@ router.get('/tasks', async (req, res, next) => {
 })
 
 router.post('/tasks/create', async (req, res, next) => {
-  if (!req.user) {
-    console.log(req)
-    return res.json({
-      message: 'sorry, you must be logged in to create a task'
-    })
-  }
+  // if (!req.user) {
+  //   console.log(req)
+  //   return res.json({
+  //     message: 'sorry, you must be logged in to create a task'
+  //   })
+  // }
+  console.log(req.body)
   try {
     const task = await Task.create({
       title: req.body.title,
-      description: req.body.description,
-      owner: req.user._id
+      description: req.body.description
+      //owner: req.user._id
     })
 
     res.json(task)
