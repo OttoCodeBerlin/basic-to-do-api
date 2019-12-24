@@ -16,6 +16,7 @@ export default function TodoList(props) {
             id={c.todo._id}
             handleDelete={props.handleDelete}
             handleEdit={props.handleEdit}
+            handleChange={props.handleChange}
           />
         ))}
       </div>

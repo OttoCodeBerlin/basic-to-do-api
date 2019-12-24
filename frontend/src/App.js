@@ -18,9 +18,9 @@ export default class App extends Component {
       message: null
     }
 
-    this.handleChangeSignup = this.handleChangeSignup.bind(this)
-    this.handleChangeLogin = this.handleChangeLogin.bind(this)
-    this.handleChangeTodo = this.handleChangeTodo.bind(this)
+    this.handleChange = this.handleChange.bind(this)
+    // this.handleChangeLogin = this.handleChangeLogin.bind(this)
+    // this.handleChangeTodo = this.handleChangeTodo.bind(this)
     this.handleSubmitTodo = this.handleSubmitTodo.bind(this)
     this.handleSubmitSignup = this.handleSubmitSignup.bind(this)
     this.handleSubmitLogin = this.handleSubmitLogin.bind(this)
@@ -49,23 +49,23 @@ export default class App extends Component {
       .catch(err => console.log(err))
   }
 
-  handleChangeTodo(e) {
+  handleChange(e) {
     this.setState({
       [e.target.name]: e.target.value
     })
   }
 
-  handleChangeLogin(e) {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-  }
+  // handleChangeLogin(e) {
+  //   this.setState({
+  //     [e.target.name]: e.target.value
+  //   })
+  // }
 
-  handleChangeSignup(e) {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-  }
+  // handleChangeSignup(e) {
+  //   this.setState({
+  //     [e.target.name]: e.target.value
+  //   })
+  // }
 
   handleSubmitTodo(e) {
     e.preventDefault()
@@ -109,7 +109,7 @@ export default class App extends Component {
     })
   }
 
-  handleSubmitSignup = e => {
+  handleSubmitSignup(e) {
     e.preventDefault()
     axios
       .post('http://localhost:5000/api/signup', {
@@ -124,7 +124,7 @@ export default class App extends Component {
       })
   }
 
-  handleSubmitLogin = e => {
+  handleSubmitLogin(e) {
     e.preventDefault()
     axios
       .post('http://localhost:5000/api/login', {
@@ -148,7 +148,7 @@ export default class App extends Component {
       })
   }
 
-  handleLogout = e => {
+  handleLogout(e) {
     e.preventDefault()
     axios
       .delete('http://localhost:5000/api/logout', {})
@@ -163,7 +163,7 @@ export default class App extends Component {
       })
   }
 
-  handleCheck = e => {
+  handleCheck(e) {
     e.preventDefault()
     axios
       .get('http://localhost:5000/api/loggedin')
@@ -195,14 +195,26 @@ export default class App extends Component {
 
   handleEdit(id) {
     axios
-      .post('http://localhost:5000/api/tasks/delete/' + id)
+      .post('http://localhost:5000/api/tasks/edit/' + id, {
+        title: this.state.title,
+        description: this.state.description
+        // owner: this.state.userId
+      })
       .then(response => {
         console.log(response.data)
       })
       .catch(error => {
         console.log(error)
       })
-    const newTodos = this.state.todos.filter(todo => todo.todo._id !== id)
+    const newTodos = this.state.todos.map(todo => {
+      if (todo.todo._id === id) {
+        todo.todo.title=this.state.title
+        todo.todo.description=this.state.description
+        return todo
+      } else {
+        return todo
+      }
+    })
     this.setState({
       todos: newTodos
     })
@@ -217,24 +229,12 @@ export default class App extends Component {
         <form onSubmit={this.handleSubmitSignup}>
           <label>
             Username:
-            <input
-              type="text"
-              id="username1"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleChangeSignup}
-            />
+            <input type="text" name="username" value={this.state.username} onChange={this.handleChange} />
           </label>
           <br />
           <label>
             Password:
-            <input
-              type="password"
-              id="password1"
-              name="password"
-              value={this.state.password}
-              onChange={this.handleChangeSignup}
-            />
+            <input type="password" name="password" value={this.state.password} onChange={this.handleChange} />
           </label>
           <br />
           <input type="submit" value="Sign Up" />
@@ -243,18 +243,12 @@ export default class App extends Component {
         <form onSubmit={this.handleSubmitLogin}>
           <label>
             Username:
-            <input
-              type="text"
-              id="username2"
-              name="username"
-              value={this.state.username}
-              onChange={this.handleChangeLogin}
-            />
+            <input type="text" name="username" value={this.state.username} onChange={this.handleChange} />
           </label>
           <br />
           <label>
             Password:
-            <input type="password" name="password" value={this.state.password} onChange={this.handleChangeLogin} />
+            <input type="password" name="password" value={this.state.password} onChange={this.handleChange} />
           </label>
           <br />
           <input type="submit" value="Login" />
@@ -269,12 +263,12 @@ export default class App extends Component {
         <form onSubmit={this.handleSubmitTodo}>
           <label>
             Title:
-            <input type="text" name="title" value={this.state.title} onChange={this.handleChangeTodo} />
+            <input type="text" name="title" value={this.state.title} onChange={this.handleChange} />
           </label>
           <br />
           <label>
             Description:
-            <input type="text" name="description" value={this.state.description} onChange={this.handleChangeTodo} />
+            <input type="text" name="description" value={this.state.description} onChange={this.handleChange} />
           </label>
           <br />
 
@@ -282,7 +276,12 @@ export default class App extends Component {
         </form>
         {/* {message && <p>{message}</p>} */}
         <p>Username: {this.state.username}</p>
-        <TodoList todos={this.state.todos} handleDelete={this.handleDelete} />
+        <TodoList
+          todos={this.state.todos}
+          handleDelete={this.handleDelete}
+          handleEdit={this.handleEdit}
+          handleChange={this.handleChange}
+        />
       </div>
     )
   }

@@ -18,7 +18,6 @@ router.get('/tasks', async (req, res, next) => {
 
 router.post('/tasks/create', async (req, res, next) => {
   if (!req.user) {
-    console.log(req)
     return res.json({
       message: 'sorry, you must be logged in to create a task'
     })
@@ -37,6 +36,7 @@ router.post('/tasks/create', async (req, res, next) => {
 })
 
 router.post('/tasks/edit/:id', async (req, res, next) => {
+  console.log(req.body)
   try {
     const task = await Task.findByIdAndUpdate(req.params.id, req.body)
 
